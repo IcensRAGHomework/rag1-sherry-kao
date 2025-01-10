@@ -29,7 +29,7 @@ def generate_hw01(question):
         #print(year)
         #print(month)
         prompt = f"列出{year}年台灣{month}月的所有紀念日，並以JSON格式呈現，每個紀念日包含日期和名稱，例如：{{'date': '年份-月份-日期', 'name': '紀念日名稱'}}。"
-        response = llm(prompt)
+        response = llm.invoke(prompt)
 
         json_parser = JsonOutputParser()
         json_output = json_parser.invoke(response)
@@ -39,7 +39,7 @@ def generate_hw01(question):
 
 
     print(result)
-    return result
+    return json.dumps(result, ensure_ascii=False, indent=2)
     #pass
     
 def generate_hw02(question):
