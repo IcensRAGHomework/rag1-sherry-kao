@@ -129,6 +129,7 @@ def generate_hw03(question2, question3):
     system_message = SystemMessage(content="You are a helpful AI assistant.")
     chat_history.append(system_message)  # Add system message to chat history
     chat_history.append(HumanMessage(content=question2))
+    tools = [get_holidays]
     llm_with_tools_3 = llm3.bind_tools(tools)
     ai_msg = llm_with_tools_3.invoke(chat_history)
     messages.append(ai_msg)
