@@ -19,6 +19,7 @@ import easyocr
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 
+
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
 
