@@ -13,6 +13,8 @@ from langchain_core.tools import tool
 import requests
 from langchain_core.messages import ToolMessage
 
+from langchain.schema import AIMessage, HumanMessage, SystemMessage
+
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
 
@@ -113,7 +115,54 @@ def generate_hw02(question):
     #pass
     
 def generate_hw03(question2, question3):
-    pass
+    llm3 = AzureChatOpenAI(
+            model=gpt_config['model_name'],
+            deployment_name=gpt_config['deployment_name'],
+            openai_api_key=gpt_config['api_key'],
+            openai_api_version=gpt_config['api_version'],
+            azure_endpoint=gpt_config['api_base'],
+            temperature=gpt_config['temperature']
+    )
+    NeedToAdd = False
+    chat_history = []  # Use a list to store messages
+    # Set an initial system message (optional)
+    system_message = SystemMessage(content="You are a helpful AI assistant.")
+    chat_history.append(system_message)  # Add system message to chat history
+    chat_history.append(HumanMessage(content=question2))
+    llm_with_tools_3 = llm3.bind_tools(tools)
+    ai_msg = llm_with_tools_3.invoke(chat_history)
+    messages.append(ai_msg)
+    for tool_call in ai_msg.tool_calls:
+        selected_tool = {"get_holidays": get_holidays}[tool_call["name"].lower()]
+        tool_output = selected_tool.invoke(tool_call["args"])
+        messages.append(ToolMessage(tool_output, tool_call_id=tool_call["id"]))
+
+    result = llm_with_tools_3.invoke(messages)
+    response = result.content
+    chat_history.append(AIMessage(content=response))
+    
+    chat_history.append(HumanMessage(content=question3))  # Add user message
+    # Get AI response using history
+    result = llm3.invoke(chat_history)
+    response = result.content
+    chat_history.append(AIMessage(content=response))  # Add AI message
+    reason = response
+
+    if "沒" in response and "清單" in response:
+        NeedToAdd = True  # 需要加入到清單
+        query = f"如果節日不在該月份清單內的話，把它加入。"
+    else:
+        NeedToAdd = False
+    chat_history.append(HumanMessage(content=query))  # Add user message
+    # Get AI response using history
+    result = llm.invoke(chat_history)
+    response = result.content
+    chat_history.append(AIMessage(content=response))  # Add AI message
+    d = {"add": NeedToAdd, "reason":reason}
+    final_result = {"Result": d}
+    return json.dumps(final_result, ensure_ascii=False, indent=4)
+
+    #pass
     
 def generate_hw04(question):
     pass
