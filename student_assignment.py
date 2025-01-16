@@ -166,7 +166,34 @@ def generate_hw03(question2, question3):
     #pass
     
 def generate_hw04(question):
-    pass
+    reader = easyocr.Reader(['ch_tra', 'en'])  # 支持繁體中文和英文
+    img_text = reader.readtext(baseball.png)
+    extracted_text = " ".join([item[1] for item in img_text])
+    
+    prompt = PromptTemplate(
+        input_variables=["text", "question"],
+        template="Based on the following text extracted from an image, please answer the question "
+            "with just the number and no extra words:\n\n"
+            "Text: {text}\n\n"
+            "Question: {question}\n\n"
+            "Answer (only the number):"
+    )
+    
+    # 組合模型和提示
+    chain = LLMChain(llm=llm, prompt=prompt)
+
+    # 傳遞提取的文字和問題，獲取回答
+    result_hw4 = chain.run({"text": extracted_text, "question": question})
+    
+    if result_hw4 is not None:
+        reponse_testhw4 = {"Result": {"score": result_hw4}}
+    else:
+        reponse_testhw4 = {"Result": {"score": "未找到積分"}}
+        
+    return json.dumps(reponse_testhw4, ensure_ascii=False, indent=4)  
+
+
+    #pass
     
 def demo(question):
     llm = AzureChatOpenAI(
