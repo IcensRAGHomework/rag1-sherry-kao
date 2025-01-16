@@ -79,7 +79,7 @@ def generate_hw02(question):
 
 
     # 設定 LLM 並綁定工具
-    llm_with_tools = llm.bind_tools(tools)
+    llm_with_tools = llm2.bind_tools(tools)
     messages = [HumanMessage(prompt)]
     ai_msg = llm_with_tools.invoke(messages)
     messages.append(ai_msg)
