@@ -71,7 +71,7 @@ def generate_hw02(question):
     )
 
     query = question
-    format_instructions = f"列出指定年份台灣某月的所有紀念日，並以JSON格式呈現，每個紀念日包含日期和名稱，例如：{{'date': '年份-月份-日期', 'name': '紀念日名稱'}}。"
+    format_instructions = f"以JSON格式呈現，每個紀念日包含日期和名稱，例如：{{'date': '年份-月份-日期', 'name': '紀念日名稱'}}。使用繁體中文。"
     prompt = f"{query}\n\n{format_instructions}"
 
     # 設定工具清單
@@ -79,17 +79,22 @@ def generate_hw02(question):
 
 
     # 設定 LLM 並綁定工具
-    llm_with_tools = llm2.bind_tools(tools, tool_choice="get_holidays")
-    ai_msg = llm_with_tools.invoke(prompt)
-    #print(ai_msg.tool_calls)
+    llm_with_tools = llm.bind_tools(tools)
+    messages = [HumanMessage(prompt)]
+    ai_msg = llm_with_tools.invoke(messages)
+    messages.append(ai_msg)
 
-    result = []
-    tools_by_name = {tool.name: tool for tool in tools}
     for tool_call in ai_msg.tool_calls:
-        tool = tools_by_name[tool_call["name"]]
-        observation = tool.invoke(tool_call["args"])
-        result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
-    return(result[0].content)
+        selected_tool = {"get_holidays": get_holidays}[tool_call["name"].lower()]
+        tool_output = selected_tool.invoke(tool_call["args"])
+        messages.append(ToolMessage(tool_output, tool_call_id=tool_call["id"]))
+
+    response = llm_with_tools.invoke(messages)
+    json_parser = JsonOutputParser()
+    json_output = json_parser.parse(response.content)
+    result = {"Result": json_output}
+
+    return json.dumps(result, ensure_ascii=False, indent=2)
     #pass
     
 def generate_hw03(question2, question3):
