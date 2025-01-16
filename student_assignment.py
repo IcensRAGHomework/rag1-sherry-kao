@@ -156,7 +156,7 @@ def generate_hw03(question2, question3):
         NeedToAdd = False
     chat_history.append(HumanMessage(content=query))  # Add user message
     # Get AI response using history
-    result = llm.invoke(chat_history)
+    result = llm3.invoke(chat_history)
     response = result.content
     chat_history.append(AIMessage(content=response))  # Add AI message
     d = {"add": NeedToAdd, "reason":reason}
