@@ -90,11 +90,26 @@ def generate_hw02(question):
         messages.append(ToolMessage(tool_output, tool_call_id=tool_call["id"]))
 
     response = llm_with_tools.invoke(messages)
-    json_parser = JsonOutputParser()
-    json_output = json_parser.parse(response.content)
-    result = {"Result": json_output}
+    # print(response.content)
 
-    return json.dumps(result, ensure_ascii=False, indent=2)
+    # 使用正則表達式提取JSON數據
+    json_match = re.search(r'```json\n(.*?)\n```', response.content, re.DOTALL)
+    if json_match:
+        json_string = json_match.group(1)
+    else:
+        raise ValueError("未能提取到 JSON 字符串")
+
+    # 解析JSON數據
+    holidays = json.loads(json_string)
+
+    # 構建所需的JSON結構
+    result = {"Result": holidays}
+
+    # 轉換為格式化的JSON字符串
+    formatted_result_json = json.dumps(result, ensure_ascii=False, indent=4)
+
+    # 輸出結果
+    return formatted_result_json
     #pass
     
 def generate_hw03(question2, question3):
