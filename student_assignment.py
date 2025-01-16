@@ -89,7 +89,7 @@ def generate_hw02(question):
         tool = tools_by_name[tool_call["name"]]
         observation = tool.invoke(tool_call["args"])
         result.append(ToolMessage(content=observation, tool_call_id=tool_call["id"]))
-    print(result[0].content)
+    return(result[0].content)
     #pass
     
 def generate_hw03(question2, question3):
