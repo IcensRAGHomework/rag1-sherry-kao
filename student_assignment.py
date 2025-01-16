@@ -132,13 +132,13 @@ def generate_hw03(question2, question3):
     tools = [get_holidays]
     llm_with_tools_3 = llm3.bind_tools(tools)
     ai_msg = llm_with_tools_3.invoke(chat_history)
-    messages.append(ai_msg)
+    chat_history.append(ai_msg)
     for tool_call in ai_msg.tool_calls:
         selected_tool = {"get_holidays": get_holidays}[tool_call["name"].lower()]
         tool_output = selected_tool.invoke(tool_call["args"])
-        messages.append(ToolMessage(tool_output, tool_call_id=tool_call["id"]))
+        chat_history.append(ToolMessage(tool_output, tool_call_id=tool_call["id"]))
 
-    result = llm_with_tools_3.invoke(messages)
+    result = llm_with_tools_3.invoke(chat_history)
     response = result.content
     chat_history.append(AIMessage(content=response))
     
