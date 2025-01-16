@@ -61,7 +61,7 @@ def get_holidays(year: str, month: str) -> str:
         return {"error": "Failed to retrieve data"}
     
 def generate_hw02(question):
-    llm = AzureChatOpenAI(
+    llm2 = AzureChatOpenAI(
             model=gpt_config['model_name'],
             deployment_name=gpt_config['deployment_name'],
             openai_api_key=gpt_config['api_key'],
@@ -79,7 +79,7 @@ def generate_hw02(question):
 
 
     # 設定 LLM 並綁定工具
-    llm_with_tools = llm.bind_tools(tools, tool_choice="get_holidays")
+    llm_with_tools = llm2.bind_tools(tools, tool_choice="get_holidays")
     ai_msg = llm_with_tools.invoke(prompt)
     #print(ai_msg.tool_calls)
 
