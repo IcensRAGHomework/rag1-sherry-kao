@@ -170,6 +170,15 @@ def generate_hw03(question2, question3):
     #pass
     
 def generate_hw04(question):
+    llm4 = AzureChatOpenAI(
+            model=gpt_config['model_name'],
+            deployment_name=gpt_config['deployment_name'],
+            openai_api_key=gpt_config['api_key'],
+            openai_api_version=gpt_config['api_version'],
+            azure_endpoint=gpt_config['api_base'],
+            temperature=gpt_config['temperature']
+    )
+    
     reader = easyocr.Reader(['ch_tra', 'en'])  # 支持繁體中文和英文
     img_text = reader.readtext(baseball.png)
     extracted_text = " ".join([item[1] for item in img_text])
@@ -184,7 +193,7 @@ def generate_hw04(question):
     )
     
     # 組合模型和提示
-    chain = LLMChain(llm=llm, prompt=prompt)
+    chain = LLMChain(llm=llm4, prompt=prompt)
 
     # 傳遞提取的文字和問題，獲取回答
     result_hw4 = chain.run({"text": extracted_text, "question": question})
