@@ -198,7 +198,6 @@ def generate_hw04(question):
     data_url = local_image_to_data_url(image_path)
     print("Data URL:", data_url)
     
-    question = "請問中華台北的積分是多少?"
     image_data = f"data:image/jpeg;base64,{data_url}"
 
     prompt_template = PromptTemplate(
