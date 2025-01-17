@@ -17,6 +17,8 @@ from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
+import base64
+from mimetypes import guess_type
 
 
 gpt_chat_version = 'gpt-4o'
@@ -168,6 +170,19 @@ def generate_hw03(question2, question3):
     return json.dumps(final_result, ensure_ascii=False, indent=4)
 
     #pass
+
+def local_image_to_data_url(image_path):
+    # Guess the MIME type of the image based on the file extension
+    mime_type, _ = guess_type(image_path)
+    if mime_type is None:
+        mime_type = 'application/octet-stream'  # Default MIME type if none is found
+
+    # Read and encode the image file
+    with open(image_path, "rb") as image_file:
+        base64_encoded_data = base64.b64encode(image_file.read()).decode('utf-8')
+
+    # Construct the data URL
+    return f"data:{mime_type};base64,{base64_encoded_data}"
     
 def generate_hw04(question):
     llm4 = AzureChatOpenAI(
@@ -179,18 +194,23 @@ def generate_hw04(question):
             temperature=gpt_config['temperature']
     )
 
+    image_path = 'baseball.png'
+    data_url = local_image_to_data_url(image_path)
+    print("Data URL:", data_url)
+    
+    question = "請問中華台北的積分是多少?"
+    image_data = f"data:image/jpeg;base64,{data_url}"
+
     prompt_template = PromptTemplate(
-        input_variables=["image_url", "question"],
-        template="Based on the following Image URL to get text extracted from an image, please answer the question "
+        input_variables=["image_data", "question"],
+        template="Based on the following Image Data extracted from an image, please answer the question "
             "with just the number and no extra words:\n\n"
-            "Image URL: {image_url}\n\n"
+            "Image Data: {image_data}\n\n"
             "Question: {question}\n\n"
             "Answer (only the number):"
     )
 
-    image_url = "baseball.png"
-    question = "請問中華台北的積分是多少?"
-    formatted_prompt = prompt_template.format(image_url=image_url, question=question)
+    formatted_prompt = prompt_template.format(image_data=image_data, question=question)
 
     messages = [
         {"role": "system", "content": "You are a helpful assistant."},
