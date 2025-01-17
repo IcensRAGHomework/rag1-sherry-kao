@@ -15,12 +15,6 @@ from langchain_core.messages import ToolMessage
 
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
-from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
-import base64
-from mimetypes import guess_type
-
-
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
 
@@ -170,19 +164,6 @@ def generate_hw03(question2, question3):
     return json.dumps(final_result, ensure_ascii=False, indent=4)
 
     #pass
-
-def local_image_to_data_url(image_path):
-    # Guess the MIME type of the image based on the file extension
-    mime_type, _ = guess_type(image_path)
-    if mime_type is None:
-        mime_type = 'application/octet-stream'  # Default MIME type if none is found
-
-    # Read and encode the image file
-    with open(image_path, "rb") as image_file:
-        base64_encoded_data = base64.b64encode(image_file.read()).decode('utf-8')
-
-    # Construct the data URL
-    return f"data:{mime_type};base64,{base64_encoded_data}"
     
 def generate_hw04(question):
     llm4 = AzureChatOpenAI(
@@ -193,36 +174,33 @@ def generate_hw04(question):
             azure_endpoint=gpt_config['api_base'],
             temperature=gpt_config['temperature']
     )
-
-    image_path = 'baseball.png'
-    data_url = local_image_to_data_url(image_path)
-    print("Data URL:", data_url)
+    reader = easyocr.Reader(['ch_tra', 'en'])  # 支持繁體中文和英文
+    img_text = reader.readtext(baseball.png)
+    extracted_text = " ".join([item[1] for item in img_text])
     
-    image_data = f"data:image/jpeg;base64,{data_url}"
-
-    prompt_template = PromptTemplate(
-        input_variables=["image_data", "question"],
-        template="Based on the following Image Data extracted from an image, please answer the question "
+    prompt = PromptTemplate(
+        input_variables=["text", "question"],
+        template="Based on the following text extracted from an image, please answer the question "
             "with just the number and no extra words:\n\n"
-            "Image Data: {image_data}\n\n"
+            "Text: {text}\n\n"
             "Question: {question}\n\n"
             "Answer (only the number):"
     )
-
-    formatted_prompt = prompt_template.format(image_data=image_data, question=question)
-
-    messages = [
-        {"role": "system", "content": "You are a helpful assistant."},
-        {
-            "role": "user",
-            "content": formatted_prompt  # 使用格式化後的 prompt 作為用戶訊息
-        }
     
-    ]
+    # 組合模型和提示
+    chain = LLMChain(llm=llm4, prompt=prompt)
 
-    result_hw4 = llm4.invoke(messages).content
-    print(result_hw4)
-    return result_hw4
+    # 傳遞提取的文字和問題，獲取回答
+    result_hw4 = chain.run({"text": extracted_text, "question": question})
+    
+    if result_hw4 is not None:
+        reponse_testhw4 = {"Result": {"score": result_hw4}}
+    else:
+        reponse_testhw4 = {"Result": {"score": "未找到積分"}}
+        
+    return json.dumps(reponse_testhw4, ensure_ascii=False, indent=4)  
+
+
     #pass
     
 def demo(question):
