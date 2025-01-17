@@ -201,7 +201,7 @@ def generate_hw04(question):
     
     ]
 
-    result_hw4 = hw4_response.invoke(messages).content
+    result_hw4 = llm4.invoke(messages).content
     print(result_hw4)
     return result_hw4
     #pass
