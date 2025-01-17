@@ -170,33 +170,40 @@ def generate_hw03(question2, question3):
     #pass
     
 def generate_hw04(question):
-    reader = easyocr.Reader(['ch_tra', 'en'])  # 支持繁體中文和英文
-    img_text = reader.readtext(baseball.png)
-    extracted_text = " ".join([item[1] for item in img_text])
-    
-    prompt = PromptTemplate(
-        input_variables=["text", "question"],
-        template="Based on the following text extracted from an image, please answer the question "
+    llm4 = AzureChatOpenAI(
+            model=gpt_config['model_name'],
+            deployment_name=gpt_config['deployment_name'],
+            openai_api_key=gpt_config['api_key'],
+            openai_api_version=gpt_config['api_version'],
+            azure_endpoint=gpt_config['api_base'],
+            temperature=gpt_config['temperature']
+    )
+
+    prompt_template = PromptTemplate(
+        input_variables=["image_url", "question"],
+        template="Based on the following Image URL to get text extracted from an image, please answer the question "
             "with just the number and no extra words:\n\n"
-            "Text: {text}\n\n"
+            "Image URL: {image_url}\n\n"
             "Question: {question}\n\n"
             "Answer (only the number):"
     )
+
+    image_url = "baseball.png"
+    question = "請問中華台北的積分是多少?"
+    formatted_prompt = prompt_template.format(image_url=image_url, question=question)
+
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {
+            "role": "user",
+            "content": formatted_prompt  # 使用格式化後的 prompt 作為用戶訊息
+        }
     
-    # 組合模型和提示
-    chain = LLMChain(llm=llm, prompt=prompt)
+    ]
 
-    # 傳遞提取的文字和問題，獲取回答
-    result_hw4 = chain.run({"text": extracted_text, "question": question})
-    
-    if result_hw4 is not None:
-        reponse_testhw4 = {"Result": {"score": result_hw4}}
-    else:
-        reponse_testhw4 = {"Result": {"score": "未找到積分"}}
-        
-    return json.dumps(reponse_testhw4, ensure_ascii=False, indent=4)  
-
-
+    result_hw4 = hw4_response.invoke(messages).content
+    print(result_hw4)
+    return result_hw4
     #pass
     
 def demo(question):
