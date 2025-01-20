@@ -15,10 +15,10 @@ from langchain_core.messages import ToolMessage
 
 from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
+import base64
+from mimetypes import guess_type
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
-import base64
-
 
 gpt_chat_version = 'gpt-4o'
 gpt_config = get_model_configuration(gpt_chat_version)
@@ -169,7 +169,8 @@ def generate_hw03(question2, question3):
     return json.dumps(final_result, ensure_ascii=False, indent=4)
 
     #pass
-
+    
+# Function to encode a local image into data URL
 def local_image_to_data_url(image_path):
     # Guess the MIME type of the image based on the file extension
     mime_type, _ = guess_type(image_path)
@@ -182,7 +183,8 @@ def local_image_to_data_url(image_path):
 
     # Construct the data URL
     return f"data:{mime_type};base64,{base64_encoded_data}"
-    
+
+
 def generate_hw04(question):
     llm4 = AzureChatOpenAI(
             model=gpt_config['model_name'],
@@ -192,44 +194,45 @@ def generate_hw04(question):
             azure_endpoint=gpt_config['api_base'],
             temperature=gpt_config['temperature']
     )
-
+        
     image_path = 'baseball.png'
-    data_url = local_image_to_data_url(image_path)
-    print("Data URL:", data_url)
-    
+    base64_image_data = local_image_to_data_url(image_path)
+    #print("Data URL:", base64_image_data)
+
     prompt_template = PromptTemplate(
-      input_variables=["question"],
-      template="Based on the following Image Data extracted from an image, please answer the question "
-              "with just the number and no extra words:\n\n"
-              "Question: {question}\n\n"
-              "Answer (only the number):"
-  )
+        input_variables=["question"],
+        template="Based on the following Image Data extracted from an image, please answer the question "
+                "with just the number and no extra words:\n\n"
+                "Question: {question}\n\n"
+                "Answer (only the number):"
+    )
 
 
-  formatted_prompt = prompt_template.format(question=question)
+    formatted_prompt = prompt_template.format(question=question)
 
-  messages = [
-      {"role": "system", "content": "You are a helpful assistant."},
-      {
-          "role": "user",
-          "content": [
-              {
-                  "type": "text",
-                  "text": formatted_prompt
-              },
-              {
-                  "type": "image_url",
-                  "image_url": {
-                      "url": data_url
-                  }
-              }
-          ]
-      }
-  ]
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {
+            "role": "user",
+            "content": [
+                {
+                    "type": "text",
+                    "text": formatted_prompt  # 使用格式化後的 prompt 作為文本問題
+                },
+                {
+                    "type": "image_url",  # 指定圖片類型
+                    "image_url": {
+                        "url": base64_image_data  # 在這裡使用圖片的 data URL
+                    }
+                }
+            ]
+        }
+    ]
 
-  result_hw4 = llm4.invoke(messages).content
-  final_result = {"Result": result_hw4}
-  print(json.dumps(final_result, ensure_ascii=False, indent=4))
+    result_hw4 = llm.invoke(messages).content
+    final_result = {"Result": result_hw4}
+    print(json.dumps(final_result, ensure_ascii=False, indent=4))
+
     #pass
     
 def demo(question):
