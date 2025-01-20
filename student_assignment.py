@@ -229,7 +229,7 @@ def generate_hw04(question):
         }
     ]
 
-    result_hw4 = llm.invoke(messages).content
+    result_hw4 = llm4.invoke(messages).content
     json_parser = JsonOutputParser()
     json_output = json_parser.invoke(result_hw4)
     final_result = {"Result": {"score": result_hw4}}
