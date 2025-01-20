@@ -18,7 +18,6 @@ from langchain.schema import AIMessage, HumanMessage, SystemMessage
 from langchain.prompts import PromptTemplate
 from langchain.chains import LLMChain
 import base64
-from mimetypes import guess_type
 
 
 gpt_chat_version = 'gpt-4o'
