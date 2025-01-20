@@ -230,7 +230,7 @@ def generate_hw04(question):
     ]
 
     result_hw4 = llm4.invoke(messages).content
-    final_result = {"Result": result_hw4}
+    final_result = {"Result": {"score": result_hw4}}
     print(json.dumps(final_result, ensure_ascii=False, indent=4))
 
     #pass
