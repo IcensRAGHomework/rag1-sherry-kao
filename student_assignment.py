@@ -56,7 +56,7 @@ def generate_hw01(question):
 @tool
 def get_holidays(year: str, month: str) -> str:
     """列出指定年份台灣某月的所有紀念日."""
-    #url = f"https://calendarific.com/api/v2/holidays?&api_key=1jj5V9ATLm23h5HbHBeaCY4O2adaieCX&country=TW&year={year}&month={month}"
+    url = f"https://calendarific.com/api/v2/holidays?&api_key=1jj5V9ATLm23h5HbHBeaCY4O2adaieCX&country=TW&year={year}&month={month}"
     response = requests.get(url)
     if response.status_code == 200:
         holidays = response.json().get('response', {}).get('holidays', [])
