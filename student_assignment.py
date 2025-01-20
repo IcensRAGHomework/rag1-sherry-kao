@@ -56,7 +56,7 @@ def generate_hw01(question):
 @tool
 def get_holidays(year: str, month: str) -> str:
     """列出指定年份台灣某月的所有紀念日."""
-    url = f"https://calendarific.com/api/v2/holidays?&api_key=1jj5V9ATLm23h5HbHBeaCY4O2adaieCX&country=TW&year={year}&month={month}"
+    #url = f"https://calendarific.com/api/v2/holidays?&api_key=1jj5V9ATLm23h5HbHBeaCY4O2adaieCX&country=TW&year={year}&month={month}"
     response = requests.get(url)
     if response.status_code == 200:
         holidays = response.json().get('response', {}).get('holidays', [])
@@ -229,8 +229,12 @@ def generate_hw04(question):
         }
     ]
 
-    result_hw4 = llm4.invoke(messages).content
+    result_hw4 = llm.invoke(messages).content
+    json_parser = JsonOutputParser()
+    json_output = json_parser.invoke(result_hw4)
     final_result = {"Result": {"score": result_hw4}}
+    print(type(json.dumps(final_result, ensure_ascii=False, indent=2)))
+    print(json.dumps(final_result, ensure_ascii=False, indent=2))
     return(json.dumps(final_result, ensure_ascii=False, indent=4))
 
     #pass
